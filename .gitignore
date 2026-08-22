@@ -1,0 +1,75 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+.pnp/
+.pnp.js
+.npm/
+.yarn/
+
+# Build
+dist/
+.astro/
+.cache/
+.output/
+.vercel
+.netlify
+.wrangler/
+
+# Logs y cache
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.parcel-cache/
+
+# Sistema
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*~
+.history/
+*.code-workspace
+
+# Entornos - no subir secretos
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Generado (se regenera en cada build/dev)
+src/data/generated/
+
+# Ficheros solo-workspace (no forman parte del sitio)
+openspec/
+openspec*.md
+curripa.txt
+bands.txt
+badncamp.txt
+.opencode/
+recursos/
+
+# Temporales
+*.tmp
+*.temp
+.tmp/
+.temp/
+coverage/
+.nyc_output/

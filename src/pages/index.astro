@@ -1,0 +1,206 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PlayerBar from '../components/PlayerBar.astro';
+import catalog from '../data/generated/catalog.json';
+import config from '../data/config.json';
+import type { Catalog } from '../lib/types';
+
+const cat = catalog as unknown as Catalog;
+const bandCount = cat.bands.length;
+const albumCount = cat.bands.reduce((n, b) => n + b.albums.length, 0);
+
+const GENRE_MAP: Record<string, string> = {
+  'industrial metal': 'metal',
+  'metalcore': 'metal',
+  'death metal melódico': 'metal',
+  'melodic death metal': 'metal',
+  'nu metal': 'metal',
+  'punk rock': 'punk',
+  'hardcore': 'punk',
+  'grindcore': 'punk',
+  'crust': 'punk',
+  'post-rock': 'alternativo',
+  'rock alternativo': 'alternativo',
+  'alternative rock': 'alternativo',
+  'rock': 'alternativo',
+  'indie rock': 'alternativo',
+};
+const GENRE_KEYS: Record<string, string> = {
+  metal: 'genre.metal',
+  punk: 'genre.punk',
+  alternativo: 'genre.alternativo',
+  otro: 'genre.otro',
+};
+const GENRE_ORDER = ['metal', 'punk', 'alternativo', 'otro'];
+
+const styleReEs = /de estilo ([^.]+?) con influencias/;
+const styleReEn = /of (.+?) style with influences/;
+const bandGenres: Record<string, { genre: string; styleEs: string; styleEn: string }> = {};
+for (const b of cat.bands) {
+  const mEs = b.history?.match(styleReEs);
+  const mEn = (b as unknown as { historyEn?: string }).historyEn?.match(styleReEn);
+  const styleEs = mEs ? mEs[1].replace(/,$/, '').trim() : 'sin estilo';
+  const styleEnRaw = mEn ? mEn[1].replace(/,$/, '').trim() : '';
+  const fallbackEnMap: Record<string, string> = {
+    'death metal melódico': 'melodic death metal',
+    'rock alternativo': 'alternative rock',
+    'sin estilo': 'no style',
+  };
+  const resolvedEn = styleEnRaw || fallbackEnMap[styleEs] || styleEs;
+  const genre = GENRE_MAP[styleEs] || GENRE_MAP[resolvedEn] || 'otro';
+  bandGenres[b.id] = { genre, styleEs, styleEn: resolvedEn };
+}
+const genreOptions = GENRE_ORDER.filter((g) => Object.values(bandGenres).some((v) => v.genre === g));
+---
+
+<BaseLayout title={config.siteName}>
+  <div id="catalog-json" hidden>{JSON.stringify(cat)}</div>
+  <div id="band-genres" hidden>{JSON.stringify(bandGenres)}</div>
+
+  <div class="max-w-6xl mx-auto px-4 md:px-6">
+    <header class="py-6 flex flex-col md:flex-row md:items-center gap-4 border-b border-base-border">
+      <div class="flex items-center justify-between md:justify-start gap-4">
+        <h1 class="font-heading text-4xl tracking-wider text-accent">{config.siteName}</h1>
+        <div class="flex gap-2 text-sm">
+          <button id="nav-favorites" class="nav-btn px-3 py-1 rounded hover:text-zinc-100" aria-pressed="false" hidden>
+            ♥ <span id="fav-count">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 md:max-w-md">
+        <input
+          id="search-input"
+          type="search"
+          data-i18n-placeholder="search.placeholder"
+          placeholder="Buscar álbum o banda…"
+          class="w-full bg-base-surface border border-base-border rounded px-4 py-2 text-sm focus:outline-none focus:border-accent"
+        />
+      </div>
+    </header>
+
+    <div id="browse-main" class="py-8">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-4 mb-6">
+        <span id="album-count" class="text-xs uppercase tracking-widest opacity-50 mr-1" data-i18n="search.albumCount_other" data-i18n-params={`{\"n\":${albumCount}}`}>
+          {albumCount} álbumes
+        </span>
+        <button
+          id="filters-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="filters-group"
+          data-i18n="filters.toggle_closed"
+          class="md:hidden bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+        >
+          Filtros ▾
+        </button>
+        <div id="filters-group" class="hidden flex flex-col gap-y-4 max-md:basis-full md:flex md:flex-row md:flex-wrap md:items-center md:gap-x-3">
+          <div class="flex items-center gap-1 text-sm max-md:flex-1">
+            <label for="genre-filter" class="sr-only" data-i18n="filters.genre_label">Filtrar por estilo</label>
+            <select
+              id="genre-filter"
+              class="w-full bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent"
+            >
+              <option value="" data-i18n="filters.genre_all">Todos los estilos</option>
+              {genreOptions.map((g) => (
+                <option value={g} data-i18n={GENRE_KEYS[g]}>{g}</option>
+              ))}
+            </select>
+          </div>
+          <div class="flex items-center gap-1 text-sm max-md:flex-1">
+            <label for="band-filter" class="sr-only" data-i18n="filters.band_label">Filtrar por grupo</label>
+            <select
+              id="band-filter"
+              class="w-full bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent"
+            >
+              <option value="" data-i18n="filters.band_all">Todas las bandas</option>
+              {cat.bands.map((b) => (
+                <option value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+          <div class="flex items-center gap-1 text-sm max-md:flex-1">
+            <label for="sort-field" class="sr-only" data-i18n="filters.sort_label">Ordenar por</label>
+            <select
+              id="sort-field"
+              class="min-w-0 flex-1 bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent"
+            >
+              <option value="date" data-i18n="filters.sort_date">Fecha</option>
+              <option value="name" data-i18n="filters.sort_name">Nombre</option>
+            </select>
+            <button
+              id="sort-dir"
+              class="bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+              data-i18n-aria="filters.sort_dir_aria"
+              data-i18n-title="filters.sort_dir_title"
+              aria-label="Cambiar sentido de ordenación"
+              title="Cambiar orden ascendente/descendente"
+            >
+              ↑
+            </button>
+          </div>
+          <button
+            id="filters-clear"
+            type="button"
+            data-i18n="filters.clear"
+            class="bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+          >
+            Limpiar ✕
+          </button>
+        </div>
+        <div class="flex gap-3 max-md:basis-full md:ml-auto">
+          <button
+            id="panel-toggle"
+            data-i18n="panel.toggle_details_open"
+            class="flex-1 min-w-[124px] inline-flex items-center justify-center bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+          >
+            Detalles ⮕
+          </button>
+          <button
+            id="grid-toggle"
+            data-i18n="panel.toggle_covers_open"
+            class="flex-1 min-w-[124px] inline-flex items-center justify-center bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+          >
+            Portadas ⮕
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-8 items-start">
+        <section
+          id="album-detail-panel"
+          class="hidden md:sticky md:top-6 md:w-[340px] shrink-0 border border-base-border rounded-xl bg-base-surface/40 p-5 space-y-4"
+        >
+          <div class="flex items-center justify-between">
+            <p class="text-xs uppercase tracking-widest opacity-50" data-i18n="panel.album_heading">Álbum</p>
+            <button
+              data-panel-hide
+              class="text-xs opacity-60 hover:opacity-100"
+              data-i18n-aria="panel.hide_aria"
+              data-i18n="panel.hide"
+              aria-label="Ocultar detalles"
+            >
+              ✕ Ocultar
+            </button>
+          </div>
+          <div id="album-detail" class="space-y-4"></div>
+        </section>
+
+        <main id="grid-area" class="min-w-0 flex-1">
+          <div
+            id="album-grid"
+            class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          ></div>
+          <p id="empty-state" class="hidden text-center text-zinc-500 py-16" data-i18n="empty.no_results">
+            No hay álbumes que coincidan.
+          </p>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <PlayerBar />
+
+  <script>
+    import '../lib/app';
+  </script>
+</BaseLayout>

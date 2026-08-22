@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+interface Props {
+  title?: string;
+}
+const {   title = 'Sona' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content="Reproductor de la música publicada en curripa.github.io" />
+    <link rel="preconnect" href="https://curripa.github.io" crossorigin />
+    <link rel="dns-prefetch" href="https://curripa.github.io" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      const primary = String((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
+      const lang = primary.startsWith("es") ? "es" : primary.startsWith("en") ? "en" : "es";
+      document.documentElement.lang = lang;
+      document.documentElement.classList.toggle("lang-en", lang === "en");
+      document.documentElement.classList.toggle("lang-es", lang !== "en");
+    </script>
+    <script>
+      import "../i18n/init.js";
+    </script>
+  </head>
+  <body class="bg-base text-zinc-100 font-body antialiased pb-28 min-h-screen">
+    <slot />
+  </body>
+</html>

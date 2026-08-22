@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(225, 29, 72, 0.08), transparent 60%),
+    #0b0b0e;
+}
+
+.track-row.is-playing .track-title,
+.track-row.is-playing .track-num {
+  color: theme('colors.accent.soft');
+}
+.track-row.is-playing {
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.nav-btn.active {
+  color: theme('colors.accent.soft');
+}
+
+#player-bar {
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+}
+
+progress::-webkit-progress-bar {
+  background: transparent;
+}
