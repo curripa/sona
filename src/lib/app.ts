@@ -180,7 +180,6 @@ function playShuffle(): void {
   panelVisible = true;
   renderDetail(band.id, album.albumId);
   applyViewport();
-  playQueue(band, album, album.tracks, 0);
 }
 
 function syncShuffleButton(): void {
@@ -396,17 +395,27 @@ function renderDetail(bandId: string, albumId: string): void {
         <div class="track-row flex items-center gap-2 px-2 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
              data-band="${band.id}" data-album="${album.albumId}" data-number="${track.number}"
              data-playing="false">
-            <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums">${track.number}</span>
+            <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums mr-3">${track.number}</span>
             <span class="track-title flex-1 min-w-0 truncate">${track.title}</span>
             <span class="opacity-40 tabular-nums ml-auto shrink-0">${formatTime(track.duration ?? 0)}</span>
          </div>`;
        })
        .join('');
      const titleClass = gridVisible ? 'text-xl' : 'text-2xl md:text-3xl';
+     const playAllHtml = `
+    <button
+      data-play-all
+      data-band="${band.id}"
+      data-album="${album.albumId}"
+      class="bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+    >
+      ${t('detail.play_all')}
+    </button>`;
      const infoHtml = `
      <div>
        <h3 class="${titleClass} leading-tight font-heading uppercase tracking-wider">${album.title}</h3>
      </div>
+     ${playAllHtml}
      <div class="space-y-1">${rows}</div>`;
     el.innerHTML = infoHtml;
     refreshAllFav();
@@ -428,7 +437,7 @@ function renderDetail(bandId: string, albumId: string): void {
         <div class="track-row flex items-center gap-2 px-2 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
              data-band="${band.id}" data-album="${album.albumId}" data-number="${track.number}"
              data-playing="false" data-search="${hay}">
-           <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums">${track.number}</span>
+           <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums mr-3">${track.number}</span>
            <span class="track-title flex-1 min-w-0 truncate">${track.title}</span>
           <div class="flex items-center gap-2 shrink-0 ml-auto">
             ${lyricsBtn}
