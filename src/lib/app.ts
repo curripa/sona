@@ -392,7 +392,7 @@ function renderDetail(bandId: string, albumId: string): void {
     const rows = album.tracks
       .map((track) => {
         return `
-        <div class="track-row flex items-center gap-2 px-2 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
+        <div class="track-row flex items-center gap-2 px-0 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
              data-band="${band.id}" data-album="${album.albumId}" data-number="${track.number}"
              data-playing="false">
             <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums mr-3">${track.number}</span>
@@ -428,20 +428,20 @@ function renderDetail(bandId: string, albumId: string): void {
     .map((track) => {
       const hay = normalize([track.title, band.name, album.title].join(' '));
       const lyricsBtn = track.lyrics
-        ? `<button data-lyrics-btn class="text-xs opacity-50 hover:opacity-100 shrink-0 leading-none" title="${t('track.lyrics_title')}" aria-label="${t('track.lyrics_aria')}">❝</button>`
+        ? `<button data-lyrics-btn class="w-8 h-8 flex items-center justify-center rounded text-base text-zinc-400 hover:text-zinc-100 hover:bg-base-border/50 shrink-0" title="${t('track.lyrics_title')}" aria-label="${t('track.lyrics_aria')}">❝</button>`
         : '';
       const lyricsPanel = track.lyrics
         ? `<div data-lyrics-panel class="hidden w-full whitespace-pre-line text-sm opacity-70 border-l-2 border-accent/40 pl-4 pt-1">${track.lyrics.replace(/"/g, '&quot;')}</div>`
         : '';
       return `
-        <div class="track-row flex items-center gap-2 px-2 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
+        <div class="track-row flex items-center gap-2 px-0 py-1.5 rounded hover:bg-base-surface cursor-pointer flex-wrap"
              data-band="${band.id}" data-album="${album.albumId}" data-number="${track.number}"
              data-playing="false" data-search="${hay}">
            <span class="track-num opacity-40 w-6 text-right shrink-0 tabular-nums mr-3">${track.number}</span>
            <span class="track-title flex-1 min-w-0 truncate">${track.title}</span>
-          <div class="flex items-center gap-2 shrink-0 ml-auto">
-            ${lyricsBtn}
-            <span class="opacity-40 tabular-nums mr-1">${formatTime(track.duration ?? 0)}</span>
+           <div class="flex items-center gap-3 shrink-0 ml-auto">
+             ${lyricsBtn}
+             <span class="opacity-40 tabular-nums mr-1">${formatTime(track.duration ?? 0)}</span>
             <button data-fav-btn class="opacity-30 hover:opacity-100 shrink-0" aria-label="${t('track.fav_aria')}" aria-pressed="false" hidden>♥</button>
           </div>
           ${lyricsPanel}
