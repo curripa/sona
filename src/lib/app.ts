@@ -401,27 +401,29 @@ function renderDetail(bandId: string, albumId: string): void {
          </div>`;
        })
        .join('');
-     const titleClass = gridVisible ? 'text-xl' : 'text-2xl md:text-3xl';
-     const playAllHtml = `
-    <button
-      data-play-all
-      data-band="${band.id}"
-      data-album="${album.albumId}"
-      class="bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
-    >
-      ${t('detail.play_all')}
-    </button>`;
-     const infoHtml = `
-     <div>
-       <h3 class="${titleClass} leading-tight font-heading uppercase tracking-wider">${album.title}</h3>
-     </div>
-     ${playAllHtml}
-     <div class="space-y-1">${rows}</div>`;
-    el.innerHTML = infoHtml;
-    refreshAllFav();
-    return;
-  }
-  const found = findAlbum(bandId, albumId);
+      const titleClass = gridVisible ? 'text-xl' : 'text-2xl md:text-3xl';
+      const totalSec = album.tracks.reduce((n, tr) => n + (Number.isFinite(tr.duration as number) ? (tr.duration as number) : 0), 0);
+      const playAllHtml = `
+     <button
+       data-play-all
+       data-band="${band.id}"
+       data-album="${album.albumId}"
+       class="bg-base-surface border border-base-border rounded px-3 py-1.5 text-sm focus:outline-none focus:border-accent hover:text-zinc-100"
+     >
+       ${t('detail.play_all')}
+     </button>`;
+      const playAllRowHtml = `<div class="flex items-center justify-between gap-4">${playAllHtml}<span class="opacity-60 tabular-nums text-sm mr-1 shrink-0">${formatTime(totalSec)}</span></div>`;
+      const infoHtml = `
+      <div>
+        <h3 class="${titleClass} leading-tight font-heading uppercase tracking-wider">${album.title}</h3>
+      </div>
+      ${playAllRowHtml}
+      <div class="space-y-1">${rows}</div>`;
+     el.innerHTML = infoHtml;
+     refreshAllFav();
+     return;
+   }
+   const found = findAlbum(bandId, albumId);
   if (!found) return;
   const { band, album } = found;
   const rows = album.tracks
@@ -460,6 +462,7 @@ function renderDetail(bandId: string, albumId: string): void {
         <span class="opacity-60">${bandStyle}</span>
       </div>`
     : '';
+  const totalSec = album.tracks.reduce((n, tr) => n + (Number.isFinite(tr.duration as number) ? (tr.duration as number) : 0), 0);
   const playAllHtml = `
     <button
       data-play-all
@@ -469,13 +472,14 @@ function renderDetail(bandId: string, albumId: string): void {
     >
       ${t('detail.play_all')}
     </button>`;
+  const playAllRowHtml = `<div class="flex items-center justify-between gap-4">${playAllHtml}<span class="opacity-60 tabular-nums text-sm mr-1 shrink-0">${formatTime(totalSec)}</span></div>`;
   const infoHtml = `
     <div>
       <h3 class="${titleClass} leading-tight font-heading uppercase tracking-wider">${album.title}</h3>
       <p class="text-xs opacity-60 uppercase tracking-widest mt-1">${formatDate(album.releaseDate) || album.year || ''}</p>
     </div>
     ${bandLine}
-    ${playAllHtml}
+    ${playAllRowHtml}
     <div class="space-y-1">${rows}</div>`;
 
   el.innerHTML = gridVisible
