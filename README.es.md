@@ -2,7 +2,7 @@
 
 <p align="center">Español · <a href="README.md">English</a></p>
 
-**Sona** es un reproductor independiente para el catálogo de [curripa.github.io](https://curripa.github.io). Una aplicación estática de una sola página que rasca la web principal en el build y presenta todos los álbumes en una rejilla navegable y filtrable con un reproductor inferior persistente.
+**Sona** es un reproductor independiente para el catálogo de [curripa.github.io](https://curripa.github.io). Una aplicación estática de una sola página presenta todos los álbumes en una rejilla navegable y filtrable con un reproductor inferior persistente.
 
 ## Características
 

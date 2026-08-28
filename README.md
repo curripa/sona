@@ -2,7 +2,7 @@
 
 <p align="center"><a href="README.es.md">Español</a> · English</p>
 
-**Sona** is a standalone music player for the [curripa.github.io](https://curripa.github.io) catalog. A static, single-page app that scrapes the main site at build time and presents every album in a browsable, filterable grid with a persistent bottom player.
+**Sona** is a standalone music player for the [curripa.github.io](https://curripa.github.io) catalog. A static, single-page app that presents every album in a browsable, filterable grid with a persistent bottom player.
 
 ## Features
 

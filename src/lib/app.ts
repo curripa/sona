@@ -372,7 +372,8 @@ function renderAll(): void {
 
 function coverImg(url: string | null, alt: string): string {
   const src = url || emptyCover;
-  return `<img class="w-full h-auto rounded border border-base-border" src="${src}" alt="${alt.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.src=this.dataset.fb;" data-fb="${emptyCover}" />`;
+  const clickable = url ? ` class="w-full h-auto rounded border border-base-border cursor-pointer" onclick="document.getElementById('lightbox-img').src=this.src;document.getElementById('lightbox').classList.remove('hidden')"` : ` class="w-full h-auto rounded border border-base-border"`;
+  return `<img${clickable} src="${src}" alt="${alt.replace(/"/g, '&quot;')}" loading="lazy" onerror="this.src=this.dataset.fb;" data-fb="${emptyCover}" />`;
 }
 
 function bandStyleFor(bandId: string): string {
@@ -454,9 +455,9 @@ function renderDetail(bandId: string, albumId: string): void {
   const bandStyle = bandStyleFor(band.id);
   const titleClass = gridVisible ? 'text-xl' : 'text-2xl md:text-3xl';
   const logoHtml = `
-    <div class="flex justify-center items-center min-h-[80px] bg-base-surface/20 rounded">
+    <a href="https://curripa.github.io/nexo/${band.id}" target="_blank" rel="noopener noreferrer" aria-label="${band.name.replace(/"/g, '&quot;')}" class="flex justify-center items-center min-h-[80px] bg-base-surface/20 rounded">
       <img class="max-h-20 w-auto object-contain" src="${band.logoUrl || ''}" alt="${band.name.replace(/"/g, '&quot;')}" loading="eager" decoding="async" fetchpriority="high" width="400" height="80" onerror="this.style.visibility='hidden'" />
-    </div>`;
+    </a>`;
   const bandLine = bandStyle
     ? `<div class="flex items-baseline gap-2 text-xs opacity-50 uppercase tracking-widest font-bold">
         <span class="opacity-60">${bandStyle}</span>
@@ -806,6 +807,24 @@ function persistPlayer(s: PlayerState): void {
   writeJSON(KEYS.player, data);
 }
 
+function setFavicon(url: string | null): void {
+  const existing = document.querySelectorAll<HTMLLinkElement>('link[rel*="icon"]');
+  if (!url) {
+    existing.forEach((el) => el.remove());
+    return;
+  }
+  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  if (link.href !== url) link.href = url;
+  existing.forEach((el) => {
+    if (el !== link) el.remove();
+  });
+}
+
 function initPlayerBar(): void {
   let lastPersist = 0;
   subscribe((s) => {
@@ -816,6 +835,10 @@ function initPlayerBar(): void {
       persistPlayer(s);
     }
     syncRepeatButton();
+    const favIsShuffle = s.band?.id === SHUFFLE_ID && !!s.track;
+    const favOrigin = favIsShuffle ? shuffleOrigin.get(s.track!.number) ?? null : null;
+    const favAlbum = favOrigin?.album ?? s.album;
+    setFavicon(s.track ? favAlbum?.coverUrl ?? null : null);
     if (!s.track) return;
 
     const isShuffle = s.band?.id === SHUFFLE_ID && s.track;

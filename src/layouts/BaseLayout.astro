@@ -34,5 +34,8 @@ const {   title = 'Sona' } = Astro.props;
   </head>
   <body class="bg-base text-zinc-100 font-body antialiased pb-28 min-h-screen">
     <slot />
+    <div id="lightbox" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60" onclick="if(event.target===this)this.classList.add('hidden')">
+      <img id="lightbox-img" class="max-w-[90vw] max-h-[90vh] object-contain cursor-default" />
+    </div>
   </body>
 </html>
