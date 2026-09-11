@@ -455,7 +455,7 @@ function renderDetail(bandId: string, albumId: string): void {
   const bandStyle = bandStyleFor(band.id);
   const titleClass = gridVisible ? 'text-xl' : 'text-2xl md:text-3xl';
   const logoHtml = `
-    <a href="https://curripa.github.io/nexo/${band.id}" target="_blank" rel="noopener noreferrer" aria-label="${band.name.replace(/"/g, '&quot;')}" class="flex justify-center items-center min-h-[80px] bg-base-surface/20 rounded">
+    <a href="https://curripa.github.io/nexo/${band.id}" aria-label="${band.name.replace(/"/g, '&quot;')}" class="flex justify-center items-center min-h-[80px] bg-base-surface/20 rounded">
       <img class="max-h-20 w-auto object-contain" src="${band.logoUrl || ''}" alt="${band.name.replace(/"/g, '&quot;')}" loading="eager" decoding="async" fetchpriority="high" width="400" height="80" onerror="this.style.visibility='hidden'" />
     </a>`;
   const bandLine = bandStyle
