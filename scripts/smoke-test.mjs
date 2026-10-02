@@ -42,7 +42,24 @@ const dom = new JSDOM(html, {
       },
     });
     window.scrollTo = () => {};
-    window.HTMLElement.prototype.scrollIntoView = () => {};
+    window.__scrollCalls = [];
+    window.HTMLElement.prototype.scrollIntoView = function (opts) {
+      window.__scrollCalls.push({ id: this.id || null, opts: opts || null });
+    };
+    window.__narrowViewport = true;
+    window.matchMedia = function (query) {
+      return {
+        media: query,
+        matches: query === '(max-width: 767.98px)' ? !!window.__narrowViewport : false,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent() {
+          return false;
+        },
+      };
+    };
   },
 });
 
@@ -101,6 +118,21 @@ setTimeout(() => {
       assert('panel renders track rows', !!firstTrack);
       assert('no autoplay on select (toggle stays paused)', doc.getElementById('pb-toggle').textContent === '▶');
       assert('play-all button present in detail', !!playAllBtn);
+
+      // narrow viewport: selection scrolls the detail panel into view and focuses it
+      const scrollCalls = window.__scrollCalls;
+      assert('panel is programmatically focusable', panel.tabIndex === -1);
+      assert('detail panel scrolled into view on select', scrollCalls.length === 1 && scrollCalls[0].id === 'album-detail-panel' && scrollCalls[0].opts.block === 'start' && scrollCalls[0].opts.behavior === 'smooth');
+      assert('focus moved to detail panel on select', doc.activeElement === panel);
+
+      // wide viewport: sticky sidebar is already visible -> no scroll, no focus steal
+      window.__narrowViewport = false;
+      const wideTile = doc.querySelector('.album-card[data-band="nergui"]');
+      assert('second album tile present', !!wideTile);
+      wideTile.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+      assert('no scroll on wide viewport', window.__scrollCalls.length === scrollCalls.length);
+      assert('no focus change on wide viewport', doc.activeElement !== doc.getElementById('album-detail-panel'));
+      window.__narrowViewport = true;
 
       // play all -> loads album into player and starts playback
       playAllBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
@@ -179,6 +211,7 @@ setTimeout(() => {
       doc.getElementById('panel-toggle').dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
       assert('grid stays visible when panel re-shown', !gridArea.classList.contains('hidden'));
       assert('panel visible with grid (both shown)', !panelEl.classList.contains('hidden'));
+      assert('toggling panel/grid never scrolls the page', window.__scrollCalls.length === scrollCalls.length);
 
       const stored = JSON.parse(window.localStorage.getItem('sona:favorites') || '[]');
       assert('favorites persisted', stored.length === 0);

@@ -500,6 +500,21 @@ function selectAlbum(bandId: string, albumId: string): void {
   panelVisible = true;
   renderDetail(bandId, albumId);
   applyViewport();
+  bringDetailIntoView();
+}
+
+const NARROW_VIEWPORT_MQ = '(max-width: 767.98px)';
+
+function isNarrowViewport(): boolean {
+  return window.matchMedia(NARROW_VIEWPORT_MQ).matches;
+}
+
+function bringDetailIntoView(): void {
+  if (!isNarrowViewport()) return;
+  const panel = document.getElementById('album-detail-panel');
+  if (!panel) return;
+  panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  panel.focus({ preventScroll: true });
 }
 
 function syncPanelToggle(): void {
